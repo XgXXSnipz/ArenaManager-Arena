@@ -1,27 +1,50 @@
 package me.JoeyLangston.SorceryWars;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-public class LocationUtil {
+public class MessageManager {
 
-        public static Location locationFromConfig(ConfigurationSection s, boolean pitchAndYaw) {
-                try {
-                        Location loc = new Location(
-                                        Bukkit.getServer().getWorld(s.getString("world")),
-                                        s.getDouble("x"),
-                                        s.getDouble("y"),
-                                        s.getDouble("z")
-                                        );
-                        
-                        if (pitchAndYaw) {
-                                loc.setPitch((float) s.getDouble("pitch"));
-                                loc.setYaw((float) s.getDouble("yaw"));
-                        }
-                        
-                        return loc;
+        public enum MessageType {
+                
+                INFO(ChatColor.GRAY),
+                GOOD(ChatColor.GOLD),
+                BAD(ChatColor.RED);
+                
+                private ChatColor color;
+                
+                MessageType(ChatColor color) {
+                        this.color = color;
                 }
-                catch (Exception e) { return null; }
+                
+                public ChatColor getColor() {
+                        return color;
+                }
+        }
+        
+        private MessageManager() { }
+        
+        private static MessageManager instance = new MessageManager();
+        
+        public static MessageManager getInstance() {
+                return instance;
+        }
+        
+        private String prefix = ChatColor.GRAY + "[" + ChatColor.GOLD + "SorceryWars" + ChatColor.GRAY + "] " + ChatColor.RESET;
+        
+        public void msg(CommandSender sender, MessageType type, String... messages) {
+                for (String msg : messages) {
+                        sender.sendMessage(prefix + type.getColor() + msg);
+                }
+        }
+        
+        public void broadcast(MessageType type, String... messages) {
+                for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+                        for (String msg : messages) {
+                                p.sendMessage(prefix + type.getColor() + msg);
+                        }
+                }
         }
 }
